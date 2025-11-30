@@ -1,6 +1,4 @@
-# xorDLL
-
-![xorDLL](resources/xorDLL.ico)
+# xorDLL // by skyfiend
 
 **xorDLL** is a lightweight, native C++ DLL injector for Windows featuring both a modern GUI and a powerful CLI. It supports standard and advanced injection methods like `CreateRemoteThread` and `NtCreateThreadEx` with zero external dependencies.
 
@@ -26,3 +24,4 @@ When reporting bugs, please include your Windows version and steps to reproduce 
 
 Licensed under the [MIT License](LICENSE).
 Developed by **skyfiend** (2025).
+
