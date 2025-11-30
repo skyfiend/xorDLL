@@ -1,0 +1,103 @@
+name: Build xorDLL
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ created ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    strategy:
+      matrix:
+        arch: [x64, x86]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch }}
+    
+    - name: Configure CMake
+      run: |
+        cmake -B build -G "Visual Studio 17 2022" -A ${{ matrix.arch == 'x64' && 'x64' || 'Win32' }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+    
+    - name: Build
+      run: cmake --build build --config ${{ env.BUILD_TYPE }}
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: xorDLL-${{ matrix.arch }}
+        path: build/bin/${{ env.BUILD_TYPE }}/xorDLL.exe
+        if-no-files-found: error
+
+  code-analysis:
+    runs-on: windows-latest
+    needs: build
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: cpp
+    
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+    
+    - name: Build for analysis
+      run: |
+        cmake -B build -G "Visual Studio 17 2022" -A x64
+        cmake --build build --config Release
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  release:
+    if: github.event_name == 'release'
+    runs-on: windows-latest
+    needs: build
+    
+    steps:
+    - name: Download x64 artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: xorDLL-x64
+        path: release/x64
+    
+    - name: Download x86 artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: xorDLL-x86
+        path: release/x86
+    
+    - name: Create release archives
+      run: |
+        Compress-Archive -Path release/x64/* -DestinationPath xorDLL-${{ github.ref_name }}-x64.zip
+        Compress-Archive -Path release/x86/* -DestinationPath xorDLL-${{ github.ref_name }}-x86.zip
+    
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          xorDLL-${{ github.ref_name }}-x64.zip
+          xorDLL-${{ github.ref_name }}-x86.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
