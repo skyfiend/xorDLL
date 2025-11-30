@@ -46,7 +46,4 @@ END
 IDI_APPICON ICON "xor.ico"
 
  
-IDB_BACKGROUND RCDATA "bgimage.png"
-
- 
 1 RT_MANIFEST "xorDLL.manifest"

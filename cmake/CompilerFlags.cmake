@@ -24,19 +24,19 @@ if(MSVC)
     add_compile_options(/sdl) # Additional security checks
     
     # Debug configuration
-    if(CMAKE_BUILD_TYPE STREQUAL )
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_compile_options(/Od /Zi /RTC1)
         add_definitions(-D_DEBUG)
     endif()
     
     # Release configuration
-    if(CMAKE_BUILD_TYPE STREQUAL )
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
         add_compile_options(/O2 /GL /Gy)
         add_compile_options(/WX)  # Treat warnings as errors
         add_definitions(-DNDEBUG)
         
         # Link-time optimization
-        set(CMAKE_EXE_LINKER_FLAGS_RELEASE )
+        set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
     endif()
     
     # Disable specific warnings
@@ -50,11 +50,11 @@ if(MINGW)
     add_definitions(-DUNICODE -D_UNICODE -DWIN32_LEAN_AND_MEAN -DNOMINMAX)
     add_definitions(-D_WIN32_WINNT=0x0601 -DWINVER=0x0601)
     
-    if(CMAKE_BUILD_TYPE STREQUAL )
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_compile_options(-g -O0)
     endif()
     
-    if(CMAKE_BUILD_TYPE STREQUAL )
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
         # Optimization for size while keeping exceptions
         add_compile_options(-Os -s -fno-rtti)
         add_compile_options(-ffunction-sections -fdata-sections -fmerge-all-constants)

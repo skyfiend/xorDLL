@@ -1,14 +1,11 @@
-# Version.cmake - Version management for xorDLL project
-
 set(XORDLL_VERSION_MAJOR 1)
 set(XORDLL_VERSION_MINOR 0)
 set(XORDLL_VERSION_PATCH 0)
 set(XORDLL_VERSION_BUILD 0)
 
-set(XORDLL_VERSION )
-set(XORDLL_VERSION_FULL )
+set(XORDLL_VERSION "${XORDLL_VERSION_MAJOR}.${XORDLL_VERSION_MINOR}.${XORDLL_VERSION_PATCH}")
+set(XORDLL_VERSION_FULL "${XORDLL_VERSION}.${XORDLL_VERSION_BUILD}")
 
-# Get git hash if available
 find_package(Git QUIET)
 if(GIT_FOUND)
     execute_process(
@@ -19,17 +16,16 @@ if(GIT_FOUND)
         ERROR_QUIET
     )
     if(NOT XORDLL_GIT_HASH)
-        set(XORDLL_GIT_HASH )
+        set(XORDLL_GIT_HASH "unknown")
     endif()
 else()
-    set(XORDLL_GIT_HASH )
+    set(XORDLL_GIT_HASH "unknown")
 endif()
 
-# Configure version header
 configure_file(
-    
-    
+    "${CMAKE_SOURCE_DIR}/include/version.h.in"
+    "${CMAKE_BINARY_DIR}/generated/version.h"
     @ONLY
 )
 
-message(STATUS )
+message(STATUS "xorDLL version: ${XORDLL_VERSION_FULL}")
